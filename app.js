@@ -51,7 +51,7 @@ function renderUserList(userList) {
     })
 }
 
-//simplify way of chainnig the promise from fecth user
+//simplified way of chainnig the promise from fecth user:
 //fetchUsers().then(renderUserList);
 
 function bootstrap() {
