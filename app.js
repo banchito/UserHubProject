@@ -16,7 +16,8 @@ function fetchUsers() {
 // Templating
 function renderUser(user) {
     //header
-    let name    = user.name
+    let name     = user.name
+    let userName = user.username
     // section company info
     let email   = user.email
     let company = user.company.name
@@ -27,18 +28,19 @@ function renderUser(user) {
     let section         = $('<section class="company-info">')
     
     let footer          = $('<footer>')
-    let buttonPost      = $('<button class="load-posts">').text(`Posts by ${name}`)
-    let buttonAlbum     = $('<button class="load-albums">').text(`Posts by ${name}`)
+    let buttonPost      = $('<button class="load-posts">').text(`Posts by ${userName}`)
+    let buttonAlbum     = $('<button class="load-albums">').text(`Albums by ${userName}`)
 
     let userElem = $('<div class="user-card">').append(
-        header.append(name),
+        header.append(`<h2>${name}</h2>`),
         section.append(
-            `<p><b>Contact:</b>${email}</p>`,
-            `<p><b>Works for:</b>${company}</p>`,
-            `<p><b>Company creed:</b>${moto}</p>`
+            `<p><b>Contact: </b>${email}</p>`,
+            `<p><b>Works for: </b>${company}</p>`,
+            `<p><b>Company creed: </b>${moto}</p>`
             ),
-        footer.append(buttonPost,buttonAlbum)
-        )
+        footer.append(buttonPost, buttonAlbum)
+        );
+        userElem.data("user", user)
     return userElem
 }
 
@@ -61,4 +63,18 @@ function bootstrap() {
   });
   
 }
+
+$('#user-list').on('click', '.user-card .load-posts', function () {
+    let parent  = $(this).closest(".user-card")
+    console.log(parent.data("user"))
+
+    
+});
+  
+$('#user-list').on('click', '.user-card .load-albums', function () {
+    let parent = $(this).closest('.user-card')
+    console.log(parent.data("user"))
+});   
+
+
 bootstrap()
