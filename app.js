@@ -23,6 +23,7 @@ const query_album_list = Object.entries(queryObj)
 function fetchData(url) {
   return fetch(url)
     .then(function (response) {
+        
       return response.json();
     })
     .catch(function (error) {
@@ -50,6 +51,30 @@ function fetchPostComments(postId) {
   return fetchData(`${BASE_URL}/posts/${postId}/comments`);
 }
 
+function setAlbumListOnUser(user){
+    if (user.albumList) {
+        return Promise.resolve(user);
+    }
+
+    return fetchUserAlbumList(user.id).then(function (albumList){
+        user.album = albumList
+        return user;
+    })
+}
+
+function setPostOnUser(user){
+    console.log(user)
+    if(user.posts){
+        return Promise.resolve(user)
+    }
+
+    return fetchUserPosts(user.id).then(function(posts){
+        user.posts = posts
+        return user;
+    })
+}
+
+// caching post and comments
 function setCommentsOnPost(post) {
   if (post.comments) {
     return Promise.reject(null);
@@ -189,8 +214,8 @@ function toggleComments(postCardElement) {
       footerElement.addClass('comments-open');
       footerElement.find('.verb').text('hide');
     }
-  }
-
+}
+  
 function bootstrap() {
   fetchUsers().then(function (data) {
     renderUserList(data);
@@ -209,7 +234,7 @@ $('#post-list').on('click', '.post-card .toggle-comments', function () {
       .then(function (post) {
         commentListElem.empty()
         post.comments.forEach(function(comment){
-            commentListElem.prepend($(` <h3>${ comment.body } --- ${ comment.email }</h3>`));
+            commentListElem.prepend($(`<h3>${ comment.body } --- ${ comment.email }</h3>`));
         })
         toggleComments(postCardElement)
       })
@@ -221,17 +246,24 @@ $('#post-list').on('click', '.post-card .toggle-comments', function () {
 
 //Loading Posts button
 $("#user-list").on("click", ".user-card .load-posts", function () {
-  let parent = $(this).closest(".user-card").data("user");
+  let user = $(this).closest(".user-card").data("user");
 
-  fetchUserPosts(parent.id).then(renderPostList);
+  setPostOnUser(user)
+  .then(function(user){
+      renderPostList(user.posts)
+  })
+  .catch(console.error)
 });
 
 //Loading Albums button
 $("#user-list").on("click", ".user-card .load-albums", function () {
-  let parent = $(this).closest(".user-card").data("user");
-  fetchUserAlbumList(parent.id).then(function (albumList) {
-    renderAlbumList(albumList);
-  });
+  let user = $(this).closest(".user-card").data("user");
+
+  setAlbumListOnUser(user)
+  .then(function(user){
+      renderAlbumList(user.album)
+  })
+  .catch(console.error)
 });
 
 bootstrap();
